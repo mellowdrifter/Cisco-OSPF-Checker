@@ -1,2 +1,13 @@
 This is a simple app to list the ospf interfaces on routers
-- Added comments
+
+v0.02
+=====
+-Devices are now listed inside a tuple. Previously only one router at a time could be run
+
+
+
+TO-DO
+=====
+-Read device list from file
+-Make far better output
+
