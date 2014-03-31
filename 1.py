@@ -5,11 +5,26 @@ and check certain OSPF properties'''
 
 import telnetlib
 import getpass
+import sys
+import os
 
 devices=("cr1.263992.hso.uk.com","cr1.303953.hso.uk.com")
+try:
+    with open('report.txt') as file:
+        choice=input("\nreport.txt already exists, do you want to overwrite it? [Yes/No]: ")
+        lchoice=choice.lower()
+        if lchoice[0]=="n":
+            sys.exit()
+        else:
+            print("\nreport.txt will be overwritten!")
+            os.remove("report.txt")
+        
+except IOError as e:
+    pass
+
 
 #get username and password
-user=input("Enter your username: ")
+user=input("\n\nEnter your username: ")
 password=getpass.getpass(prompt="Enter your password: ")
 enablepass=getpass.getpass(prompt="Enter your enable password: ")
 
