@@ -17,6 +17,8 @@ for i in devices:
 	tn.read_until(b"Password: ")
 	tn.write(password.encode('ascii') + b"\n")
 	tn.write(b"show ip ospf int brief\n")
+	tn.write(b"sh ip ospf neighbor brief/n")
+	tn.write(b"sh ip ospf neighbor/n")
 	tn.write(b"exit\n")
 	print(tn.read_all().decode('ascii'))
 
