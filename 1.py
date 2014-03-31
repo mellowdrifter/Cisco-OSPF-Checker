@@ -30,4 +30,3 @@ for i in devices:
     tn.write(b"sh ip ospf neighbor\n")
     tn.write(b"exit\n")
     print(tn.read_all().decode('ascii'))
-
