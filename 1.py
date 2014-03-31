@@ -5,6 +5,7 @@ and check certain OSPF properties'''
 
 import telnetlib
 import getpass
+import os
 
 devices=("cr1.263992.hso.uk.com","cr1.303953.hso.uk.com")
 
@@ -26,7 +27,11 @@ for i in devices:
         tn.write(b"enable\n")
         tn.write(enablepass.encode('ascii') + b"\n")
     tn.write(b"terminal length 0\n")  
+    tn.write(b"show ver | include IOS\n")
     tn.write(b"show ip ospf int brief\n")
     tn.write(b"sh ip ospf neighbor\n")
     tn.write(b"exit\n")
-    print(tn.read_all().decode('ascii'))
+    output=(tn.read_all().decode('ascii'))
+    f=open('report.txt', 'w')
+    f.write(output)
+    f.close
