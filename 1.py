@@ -8,6 +8,7 @@ import getpass
 import sys
 import os
 
+#Check for devices.txt and read into string
 devices=[]
 try:
     with open('devices.txt') as file:
@@ -25,16 +26,16 @@ try:
         choice = input("\nreport.txt already exists, do you want to overwrite it? [Yes/No]: ")
         lchoice = choice.lower()
         if lchoice[0] == "n":
+            print("\nExiting now")
             sys.exit()
         else:
             print("\nreport.txt will be overwritten!")
-            os.remove("report.txt")
-        
+            os.remove("report.txt")        
 except IOError as e:
     pass
 
 
-#get username and password
+#Get username and password
 user = input("\n\nEnter your username: ")
 password = getpass.getpass(prompt="Enter your password: ")
 enablepass = getpass.getpass(prompt="Enter your enable password: ")
