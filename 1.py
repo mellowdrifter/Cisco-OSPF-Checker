@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-'''Simple script to log into a number of devices
+'''Simple script to telnet into a number of devices
 and check certain OSPF properties'''
 
 import telnetlib
@@ -22,7 +22,7 @@ for line in f:
     
 try:
     with open('report.txt') as file:
-        choice = input("\nreport.txt already exists, do you want to overwrite it? [Yes/No]: ")
+        choice = input("\nreport.txt already exists, do you want to overwrite it? [Yes/No] (Yes is default): ")
         lchoice = choice.lower()
         if lchoice[0] == "n":
             print("\nExiting now")
@@ -55,10 +55,11 @@ for i in devices:
     print("Checking ",i)
     tn.write(b"terminal length 0\n")  
     tn.write(b"show ver | include IOS\n")
-    tn.write(b"show ip ospf int brief\n")
-    tn.write(b"sh ip ospf neighbor\n")
+    tn.write(b"show inventory\n")
+    tn.write(b"dir\n")
     tn.write(b"exit\n")
     output=(tn.read_all().decode('ascii'))
     f = open('report.txt', 'a')
-    f.write(output)
+    f.write(output.rstrip())
+    print(output.rstrip())
     f.close
