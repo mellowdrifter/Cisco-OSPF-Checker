@@ -6,7 +6,6 @@ and check certain OSPF properties'''
 import telnetlib
 import getpass
 import sys
-import os
 
 #Check for devices.txt and read into string
 devices=[]
@@ -30,7 +29,8 @@ try:
             sys.exit()
         else:
             print("\nreport.txt will be overwritten!")
-            os.remove("report.txt")        
+            f = open('report.txt', 'w')
+            f.close
 except IOError as e:
     pass
 
