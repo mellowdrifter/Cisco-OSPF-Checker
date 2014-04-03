@@ -23,7 +23,7 @@ for line in f:
 try:
     with open('report.txt') as file:
         choice = input("\nreport.txt already exists. Do you want to overwrite it? [y/n]: ")
-        while choice != "y" and choice != "n":
+        while choice not in ["y","n"]:
             choice = input("Invalid choice! Do you want to overwrite report.txt? [y/n]: ")
         if choice == "n" or choice == "":
             print("\nExiting now")
