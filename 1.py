@@ -22,13 +22,10 @@ for line in f:
     
 try:
     with open('report.txt') as file:
-        choice = None
-        choice = input("\nreport.txt already exists, do you want to overwrite it? [Yes/No] (No is default): ")
-        lchoice = choice.lower()
-        if choice == "":
-            print("\nExiting now")
-            sys.exit()
-        elif lchoice[0] == "n":
+        choice = input("\nreport.txt already exists. Do you want to overwrite it? [y/n]: ")
+        while choice != "y" and choice != "n":
+            choice = input("Invalid choice! Do you want to overwrite report.txt? [y/n]: ")
+        if choice == "n" or choice == "":
             print("\nExiting now")
             sys.exit()
         else:
