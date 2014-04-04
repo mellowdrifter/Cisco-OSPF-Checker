@@ -5,7 +5,6 @@ and check certain OSPF properties'''
 
 import telnetlib
 import getpass
-import sys
 
 #Check for devices.txt and read into string
 devices=[]
@@ -14,24 +13,25 @@ try:
         pass
 except IOError as e:
     print("\ndevices.txt does not exist or unreadable, exiting now")
-    sys.exit()
+    exit()
 
 f = open('devices.txt')
 for line in f:
     devices.append(line.rstrip())
     
+#Check if report.txt exists. If so, ask if we want to overwrite it    
 try:
     with open('report.txt') as file:
         choice = input("\nreport.txt already exists. Do you want to overwrite it? [y/n]: ")
         while choice not in ["y","n"]:
             choice = input("Invalid choice! Do you want to overwrite report.txt? [y/n]: ")
-        if choice == "n" or choice == "":
+        if choice == "n":
             print("\nExiting now")
-            sys.exit()
+            exit()
         else:
             print("\nreport.txt will be overwritten!")
             f = open('report.txt', 'w')
-            f.close
+            f.close()
 except IOError as e:
     pass
 
@@ -41,7 +41,7 @@ user = input("\n\nEnter your username: ")
 password = getpass.getpass(prompt="Enter your password: ")
 enablepass = getpass.getpass(prompt="Enter your enable password: ")
 
-#Log into host
+#Log into host, run commands, echo output, write output to file
 for i in devices:
     tn = telnetlib.Telnet(i,23,5)
     tn.read_until(b"Username: ")
@@ -63,4 +63,4 @@ for i in devices:
     f = open('report.txt', 'a')
     f.write(output.rstrip())
     print(output.rstrip())
-    f.close
+    f.close()
