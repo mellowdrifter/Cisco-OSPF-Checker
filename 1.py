@@ -5,6 +5,7 @@ and check certain OSPF properties'''
 
 import telnetlib
 import getpass
+import re
 
 #Check for devices.txt and read into string
 devices=[]
@@ -42,8 +43,8 @@ password = getpass.getpass(prompt="Enter your password: ")
 enablepass = getpass.getpass(prompt="Enter your enable password: ")
 
 #Log into host, run commands, echo output, write output to file
-for i in devices:
-    tn = telnetlib.Telnet(i,23,5)
+for device in devices:
+    tn = telnetlib.Telnet(device,23,5)
     tn.read_until(b"Username: ")
     tn.write(user.encode('ascii') + b"\n")
     tn.read_until(b"Password: ")
@@ -53,14 +54,25 @@ for i in devices:
     if ">" in en:
         tn.write(b"enable\n")
         tn.write(enablepass.encode('ascii') + b"\n")
-    print("Checking ",i)
-    tn.write(b"terminal length 0\n")  
+    print("Checking ",device)
+    tn.write(b"terminal length 0\n")
     tn.write(b"show ver | include IOS\n")
     tn.write(b"show inventory\n")
-    tn.write(b"dir\n")
+    tn.write(b"show ip ospf interface\n")
     tn.write(b"exit\n")
     output=(tn.read_all().decode('ascii'))
-    f = open('report.txt', 'a')
-    f.write(output.rstrip())
-    print(output.rstrip())
-    f.close()
+    i = re.findall('(?:GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI)[0-9]{1,4}/?[0-9]{0,4}.?[0-9]{0,4}/?[0-9]{0,3}/?[0-9]{0,3}/?[0-9]{0,3}:?[0-9]{0,3}',output)
+    ip = re.findall(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})',output)
+    A = re.findall(r'Area[\s]{0,3}[0-9]{1,5}',output)
+    n = re.findall(r'Network Type[\s]{0,3}[a-zA-Z_]{0,20}',output)
+    C = re.findall(r'Cost:[\s]{0,3}[0-9]{1,5}',output)
+    h = re.findall(r'Hello[\s][0-9]{1,3}',output)
+    D = re.findall(r'Dead[\s][0-9]{1,3}',output)
+    for a,b,c,d,e,f,g in zip(i,ip,A,n,C,h,D):
+        print("\n"+a)
+        print(b)
+        print(c)
+        print(d)
+        print(e)
+        print(f)
+        print(g)
