@@ -66,29 +66,30 @@ for device in devices:
     new = re.split(r'[\n](?=GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI)',output)
     for i in new:
         interface = re.findall(r'(?:GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI)[0-9]{1,4}/?[0-9]{0,4}.?[0-9]{0,4}/?[0-9]{0,3}/?[0-9]{0,3}/?[0-9]{0,3}:?[0-9]{0,3}',i)
+        if not interface:
+            continue
         ip = re.findall(r'Internet Address (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})',i)
+        result = re.search(r'Internet Address (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', i)
         area = re.findall(r'Area ([\s]{0,3}[0-9]{1,5})',i)
         net = re.findall(r'Network Type ([\s]{0,3}[a-zA-Z_]{0,20})',i)
         cost = re.findall(r'Cost: ([0-9]{1,5})',i)
         hello = re.findall(r', Hello ([0-9]{1,3})',i)
         dead = re.findall(r', Dead ([0-9]{1,3})',i)
-        if not interface:
-            continue
-        print("\nInterface",interface)
-        f.write("\n\nInterface: "+str(interface))
-        print("IP:",ip)
-        f.write("\nIP: "+str(ip))
-        print("Area:",area)
-        f.write("\nArea: "+str(area))
-        print("Type:",net)
-        f.write("\nType: "+str(net))
-        print("Cost",cost)
-        f.write("\nCost: "+str(cost))
+        print("\nInt:\t"+interface[0])
+        f.write("\n\nInt:\t"+interface[0])
+        print("IP:\t"+ip[0])
+        f.write("\nIP:\t"+ip[0])
+        print("Area:\t"+area[0])
+        f.write("\nArea:\t"+area[0])
+        print("Type:\t"+net[0])
+        f.write("\nType:\t"+net[0])
+        print("Cost\t"+cost[0])
+        f.write("\nCost:\t"+cost[0])
         if hello:
-            print("Hello:",hello)
-            f.write("\nHello: "+str(hello))
+            print("Hello:\t"+hello[0])
+            f.write("\nHello:\t"+hello[0])
         if dead:
-            print("Dead:",dead)
-            f.write("\nDead: "+str(dead))
+            print("Dead:\t"+dead[0])
+            f.write("\nDead:\t"+dead[0])
     f.close()
             
