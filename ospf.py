@@ -18,6 +18,8 @@ def interface(i):
 
 def getip(i):
     ip = re.findall(r'Internet Address (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})',i)
+    if not ip:
+        ip = re.findall(r'Interface is unnumbered. Using address of Loopback[0-9]{0,5}',i)
     return ip
 
 def getarea(i):
