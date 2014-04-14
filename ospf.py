@@ -7,6 +7,40 @@ import telnetlib
 import getpass
 import re
 
+
+
+def interface(i):
+    ospf_int = re.findall(r'(?:GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI)[0-9]{1,4}/?[0-9]{0,4}.?[0-9]{0,4}/?[0-9]{0,3}/?[0-9]{0,3}/?[0-9]{0,3}:?[0-9]{0,3}',i)
+    if ospf_int:
+        return ospf_int
+    if not ospf_int:
+        return None
+
+def getip(i):
+    ip = re.findall(r'Internet Address (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})',i)
+    return ip
+
+def getarea(i):
+    area = re.findall(r'Area ([\s]{0,3}[0-9]{1,5})',i)
+    return area
+
+def gettype(i):
+    net = re.findall(r'Network Type ([\s]{0,3}[a-zA-Z_]{0,20})',i)
+    return net
+
+def getcost(i):
+    cost = re.findall(r'Cost: ([0-9]{1,5})',i)
+    return cost
+
+def gethello(i):
+    hello = re.findall(r', Hello ([0-9]{1,3})',i)
+    return hello
+
+def getdead(i):
+    dead = re.findall(r', Dead ([0-9]{1,3})',i)
+    return dead
+
+
 #Check for devices.txt and read into string
 devices=[]
 try:
@@ -54,29 +88,28 @@ for device in devices:
     if ">" in en:
         tn.write(b"enable\n")
         tn.write(enablepass.encode('ascii') + b"\n")
-    print("Checking ",device)
+    print("\n\nChecking ",device)
     f = open('report.txt', 'a')
-    f.write("\nChecking "+device)
+    f.write("\n\nChecking "+device)
     tn.write(b"terminal length 0\n")
     tn.write(b"show ver | include IOS\n")
     tn.write(b"show inventory\n")
     tn.write(b"show ip ospf interface\n")
     tn.write(b"exit\n")
     output=(tn.read_all().decode('ascii'))
-    new = re.split(r'[\n](?=GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI)',output)
-    for i in new:
-        interface = re.findall(r'(?:GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI)[0-9]{1,4}/?[0-9]{0,4}.?[0-9]{0,4}/?[0-9]{0,3}/?[0-9]{0,3}/?[0-9]{0,3}:?[0-9]{0,3}',i)
-        if not interface:
+    ospf = re.split(r'[\n](?=GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI)',output)
+    for i in ospf:
+        intf = interface(i)
+        if not intf:
             continue
-        ip = re.findall(r'Internet Address (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})',i)
-        result = re.search(r'Internet Address (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', i)
-        area = re.findall(r'Area ([\s]{0,3}[0-9]{1,5})',i)
-        net = re.findall(r'Network Type ([\s]{0,3}[a-zA-Z_]{0,20})',i)
-        cost = re.findall(r'Cost: ([0-9]{1,5})',i)
-        hello = re.findall(r', Hello ([0-9]{1,3})',i)
-        dead = re.findall(r', Dead ([0-9]{1,3})',i)
-        print("\nInt:\t"+interface[0])
-        f.write("\n\nInt:\t"+interface[0])
+        ip = getip(i)
+        area = getarea(i)
+        net = gettype(i)
+        cost = getcost(i)
+        hello = gethello(i)
+        dead = getdead(i)
+        print("\nInt:\t"+intf[0])
+        f.write("\n\nInt:\t"+intf[0])
         print("IP:\t"+ip[0])
         f.write("\nIP:\t"+ip[0])
         print("Area:\t"+area[0])
