@@ -19,7 +19,7 @@ def interface(i):
 def getip(i):
     ip = re.findall(r'Internet Address (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})',i)
     if not ip:
-        ip = re.findall(r'Interface is unnumbered. Using address of Loopback[0-9]{0,5}',i)
+        ip = re.findall(r'Interface is unnumbered. Using address of [a-zA-Z]{1,10}[0-9]{1,5}/?[0-9]{0,5}.?[0-9]{0,5}',i)
     return ip
 
 def getarea(i):
@@ -54,7 +54,9 @@ except IOError as e:
 
 f = open('devices.txt')
 for line in f:
-    devices.append(line.rstrip())
+    if not line.strip(): #Ignore any blank lines in devices.txt
+        continue
+    devices.append(line.strip())
 
 #Check if report.txt exists. If so, ask if we want to overwrite it
 try:
@@ -80,51 +82,53 @@ enablepass = getpass.getpass(prompt="Enter your enable password: ")
 
 #Log into host, run commands, echo output, write output to file
 for device in devices:
-    tn = telnetlib.Telnet(device,23,5)
-    tn.read_until(b"Username: ")
-    tn.write(user.encode('ascii') + b"\n")
-    tn.read_until(b"Password: ")
-    tn.write(password.encode('ascii') + b"\n")
-    tn.write(b"\n")
-    en = (tn.read_some().decode('ascii'))
-    if ">" in en:
-        tn.write(b"enable\n")
-        tn.write(enablepass.encode('ascii') + b"\n")
-    print("\n\nChecking ",device)
-    f = open('report.txt', 'a')
-    f.write("\n\nChecking "+device)
-    tn.write(b"terminal length 0\n")
-    tn.write(b"show ver | include IOS\n")
-    tn.write(b"show inventory\n")
-    tn.write(b"show ip ospf interface\n")
-    tn.write(b"exit\n")
-    output=(tn.read_all().decode('ascii'))
-    ospf = re.split(r'[\n](?=GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI)',output)
-    for i in ospf:
-        intf = interface(i)
-        if not intf:
-            continue
-        ip = getip(i)
-        area = getarea(i)
-        net = gettype(i)
-        cost = getcost(i)
-        hello = gethello(i)
-        dead = getdead(i)
-        print("\nInt:\t"+intf[0])
-        f.write("\n\nInt:\t"+intf[0])
-        print("IP:\t"+ip[0])
-        f.write("\nIP:\t"+ip[0])
-        print("Area:\t"+area[0])
-        f.write("\nArea:\t"+area[0])
-        print("Type:\t"+net[0])
-        f.write("\nType:\t"+net[0])
-        print("Cost\t"+cost[0])
-        f.write("\nCost:\t"+cost[0])
-        if hello:
-            print("Hello:\t"+hello[0])
-            f.write("\nHello:\t"+hello[0])
-        if dead:
-            print("Dead:\t"+dead[0])
-            f.write("\nDead:\t"+dead[0])
-    f.close()
-            
+    try:
+        tn = telnetlib.Telnet(device,23,5)
+        tn.read_until(b"Username: ")
+        tn.write(user.encode('ascii') + b"\n")
+        tn.read_until(b"Password: ")
+        tn.write(password.encode('ascii') + b"\n")
+        tn.write(b"\n")
+        en = (tn.read_some().decode('ascii'))
+        if ">" in en:
+            tn.write(b"enable\n")
+            tn.write(enablepass.encode('ascii') + b"\n")
+        print("\n\nChecking ",device)
+        f = open('report.txt', 'a')
+        f.write("\n\nChecking "+device)
+        tn.write(b"terminal length 0\n")
+        tn.write(b"show ver | include IOS\n")
+        tn.write(b"show inventory\n")
+        tn.write(b"show ip ospf interface\n")
+        tn.write(b"exit\n")
+        output=(tn.read_all().decode('ascii'))
+        ospf = re.split(r'[\n](?=GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI)',output)
+        for i in ospf:
+            intf = interface(i)
+            if not intf:
+                continue
+            ip = getip(i)
+            area = getarea(i)
+            net = gettype(i)
+            cost = getcost(i)
+            hello = gethello(i)
+            dead = getdead(i)
+            print("\nInt:\t"+intf[0])
+            f.write("\n\nInt:\t"+intf[0])
+            print("IP:\t"+ip[0])
+            f.write("\nIP:\t"+ip[0])
+            print("Area:\t"+area[0])
+            f.write("\nArea:\t"+area[0])
+            print("Type:\t"+net[0])
+            f.write("\nType:\t"+net[0])
+            print("Cost\t"+cost[0])
+            f.write("\nCost:\t"+cost[0])
+            if hello:
+                print("Hello:\t"+hello[0])
+                f.write("\nHello:\t"+hello[0])
+            if dead:
+                print("Dead:\t"+dead[0])
+                f.write("\nDead:\t"+dead[0])
+    except:
+        print("\n!*Unable to resolve or log into",device,"*!")
+    f.close()            
