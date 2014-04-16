@@ -1,7 +1,11 @@
-This is a simple app to list the ospf interfaces on routers
+This is a simple app to list the ospf interfaces and properties on Cisco routers
 
--You are required to have a list of devices in a text file named devices.txt in the same location as the .py file
 -Currently outputs to a file called reports.txt in the same location. App will ask you what to do is reports.txt already exists
+
+v0.05
+=====
+-You can now pass a router name as an argument
+-If there is not argument, then device.txt is looked at
 
 v0.04
 =====

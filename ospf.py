@@ -6,6 +6,7 @@ and check certain OSPF properties'''
 import telnetlib
 import getpass
 import re
+import sys
 
 
 
@@ -46,17 +47,20 @@ def getdead(i):
 #Check for devices.txt and read into string
 devices=[]
 try:
-    with open('devices.txt') as file:
-        pass
-except IOError as e:
-    print("\ndevices.txt does not exist or unreadable, exiting now")
-    exit()
+    devices.append(sys.argv[1])
+except:
+    try:
+        with open('devices.txt') as file:
+            pass
+    except IOError as e:
+        print("\ndevices.txt does not exist or unreadable, exiting now")
+        exit()
 
-f = open('devices.txt')
-for line in f:
-    if not line.strip(): #Ignore any blank lines in devices.txt
-        continue
-    devices.append(line.strip())
+    f = open('devices.txt')
+    for line in f:
+        if not line.strip(): #Ignore any blank lines in devices.txt
+            continue
+        devices.append(line.strip())
 
 #Check if report.txt exists. If so, ask if we want to overwrite it
 try:
