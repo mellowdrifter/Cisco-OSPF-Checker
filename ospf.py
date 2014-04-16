@@ -44,11 +44,13 @@ def getdead(i):
     return dead
 
 
-#Check for devices.txt and read into string
+#Get out list of devices to check
 devices=[]
-try:
-    devices.append(sys.argv[1])
-except IndexError:
+
+if len(sys.argv) > 1:       #If any routers passed via cli, we check those instead
+    for i in sys.argv[1:]:
+        devices.append(i)
+else:
     try:
         with open('devices.txt') as file:
             pass
@@ -58,7 +60,7 @@ except IndexError:
 
     f = open('devices.txt')
     for line in f:
-        if not line.strip(): #Ignore any blank lines in devices.txt
+        if line.isspace(): #Ignore any blank lines
             continue
         devices.append(line.strip())
 
