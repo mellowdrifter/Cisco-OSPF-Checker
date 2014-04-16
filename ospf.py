@@ -48,7 +48,7 @@ def getdead(i):
 devices=[]
 try:
     devices.append(sys.argv[1])
-except:
+except IndexError:
     try:
         with open('devices.txt') as file:
             pass
