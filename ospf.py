@@ -44,7 +44,7 @@ def getdead(i):
     return dead
 
 
-#Get out list of devices to check
+#Get list of devices to check
 devices=[]
 
 if len(sys.argv) > 1:       #If any routers passed via cli, we check those instead
@@ -101,7 +101,7 @@ for device in devices:
             tn.write(enablepass.encode('ascii') + b"\n")
         print("\n\nChecking ",device)
         f = open('report.txt', 'a')
-        f.write("\n\nChecking "+device)
+        f.write("\n\n\nChecking "+device)
         tn.write(b"terminal length 0\n")
         tn.write(b"show ver | include IOS\n")
         tn.write(b"show inventory\n")
@@ -119,16 +119,8 @@ for device in devices:
             cost = getcost(i)
             hello = gethello(i)
             dead = getdead(i)
-            print("\nInt:\t"+intf[0])
-            f.write("\n\nInt:\t"+intf[0])
-            print("IP:\t"+ip[0])
-            f.write("\nIP:\t"+ip[0])
-            print("Area:\t"+area[0])
-            f.write("\nArea:\t"+area[0])
-            print("Type:\t"+net[0])
-            f.write("\nType:\t"+net[0])
-            print("Cost\t"+cost[0])
-            f.write("\nCost:\t"+cost[0])
+            print("\nInt:\t{}\nIP:\t{}\nArea:\t{}\nNet:\t{}\nCost:\t{}".format(intf[0],ip[0],area[0],net[0],cost[0]))
+            f.write("\n\nInt:\t"+intf[0]+"\nIP:\t"+ip[0]+"\nArea:\t"+area[0]+"\nType:\t"+net[0]+"\nCost:\t"+cost[0])
             if hello:
                 print("Hello:\t"+hello[0])
                 f.write("\nHello:\t"+hello[0])
