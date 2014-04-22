@@ -69,6 +69,7 @@ while r not in ["y","n"]:
     r = input("\n\n\nWould you like to write the raw cli output to raw.txt? [y/n]: ")
     if r.lower() == "y":
         raw = 1
+        raw_out=""
     else:
         raw = 0
 
@@ -116,9 +117,7 @@ for device in devices:
         tn.write(b"exit\n")
         output=(tn.read_all().decode('ascii'))
         if raw:
-            g = open('raw.txt', 'a')
-            g.write(output)
-            g.close()
+            raw_out+=output
         ospf = re.split(r'[\n](?=GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI)',output)
         for i in ospf:
             intf = interface(i)
@@ -141,3 +140,10 @@ for device in devices:
     except:
         print("\n!*Unable to resolve or log into",device,"*!")
     f.close()            
+
+if raw:
+    print("\n\nWriting raw output to raw.txt")
+    g = open('raw.txt','w')
+    g.write(raw_out)
+    g.close()
+
