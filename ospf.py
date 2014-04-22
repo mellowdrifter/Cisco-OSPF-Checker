@@ -9,7 +9,6 @@ import re
 import sys
 
 
-
 def interface(i):
     ospf_int = re.findall(r'(?:GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI)[0-9]{1,4}/?[0-9]{0,4}.?[0-9]{0,4}/?[0-9]{0,3}/?[0-9]{0,3}/?[0-9]{0,3}:?[0-9]{0,3}',i)
     if ospf_int:
@@ -64,7 +63,15 @@ else:
             continue
         devices.append(line.strip())
 
-#Check if report.txt exists. If so, ask if we want to overwrite it
+#Check if report.txt exists. If so, ask if we want to overwrite it. Also ask if you want to write raw output at the end
+r = ""
+while r not in ["y","n"]:
+    r = input("\n\n\nWould you like to write the raw cli output to raw.txt? [y/n]: ")
+    if r.lower() == "y":
+        raw = 1
+    else:
+        raw = 0
+
 try:
     with open('report.txt') as file:
         choice = input("\nreport.txt already exists. Do you want to overwrite it? [y/n]: ")
@@ -108,6 +115,10 @@ for device in devices:
         tn.write(b"show ip ospf interface\n")
         tn.write(b"exit\n")
         output=(tn.read_all().decode('ascii'))
+        if raw:
+            g = open('raw.txt', 'a')
+            g.write(output)
+            g.close()
         ospf = re.split(r'[\n](?=GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI)',output)
         for i in ospf:
             intf = interface(i)
