@@ -10,7 +10,7 @@ import sys
 
 
 def interface(i):
-    ospf_int = re.findall(r'(?:GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI)[0-9]{1,4}/?[0-9]{0,4}.?[0-9]{0,4}/?[0-9]{0,3}/?[0-9]{0,3}/?[0-9]{0,3}:?[0-9]{0,3}',i)
+    ospf_int = re.findall(r'(?:GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI|Vlan|Virtual-Access)[0-9]{1,4}/?[0-9]{0,4}.?[0-9]{0,4}/?[0-9]{0,3}/?[0-9]{0,3}/?[0-9]{0,3}:?[0-9]{0,3}',i)
     if ospf_int:
         return ospf_int
     if not ospf_int:
@@ -112,13 +112,12 @@ for device in devices:
         f.write("\n\n\nChecking "+device)
         tn.write(b"terminal length 0\n")
         tn.write(b"show ver | include IOS\n")
-        tn.write(b"show inventory\n")
         tn.write(b"show ip ospf interface\n")
         tn.write(b"exit\n")
         output=(tn.read_all().decode('ascii'))
         if raw:
             raw_out+=output
-        ospf = re.split(r'[\n](?=GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI)',output)
+        ospf = re.split(r'[\n](?=GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI|Vlan|Virtual-Access)',output)
         for i in ospf:
             intf = interface(i)
             if not intf:
