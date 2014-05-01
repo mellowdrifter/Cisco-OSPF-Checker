@@ -113,10 +113,7 @@ for device in devices:
             if not data:
                 continue
             print("\nInt:\t{}\nIP:\t{}\nArea:\t{}\nNet:\t{}\nCost:\t{}".format(data[0],data[1],data[2],data[3],data[4]))
-            if data[5]:
-                print("Hello:\t{}".format(data[5]))
-            if data[6]:
-                print("Dead:\t{}".format(data[6]))
+            print("Hello:\t{}\nDead:\t{}".format(data[5],data[6]))
     except:
         print("\n!*Unable to resolve or log into",device,"*!")
 
