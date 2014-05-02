@@ -25,28 +25,29 @@ def ospf_information(i):
     net = n.group(1)
     c = re.search(r'Cost: ([0-9]{1,5})',i)
     cost = c.group(1)
-    ne = re.search(r'(?:Neighbor Count is )([0-9]{1,3})',i)
-    if not ne:
-        p = re.search(r'Passive',i)
-        if not p:
-            neighbour = "N/A"
+    p = re.search(r'Passive',i)
+    if p:
+        neighbour = "Passive"
+        adjacency = None
+    else:
+        ne = re.search(r'(?:Neighbor Count is )([0-9]{1,3})',i)
+        if not ne:
+            neighbour = None
         else:
-            neighbour = p.group()
-    else:
-        neighbour = ne.group(1)
-    ad = re.search(r'(?:Adjacent neighbor count is )([0-9]{1,3})',i)
-    if not ad:
-        adjacency = "N/A"
-    else:
-        adjacency = ad.group(1)
+            neighbour = ne.group(1)
+        ad = re.search(r'(?:Adjacent neighbor count is )([0-9]{1,3})',i)
+        if not ad:
+            adjacency = None
+        else:
+            adjacency = ad.group(1)
     h = re.search(r'Hello ([0-9]{1,3})',i)
     if not h:
-        hello = "N/A"
+        hello = None
     else:
         hello = h.group(1)
     d = re.search(r'Dead ([0-9]{1,3})',i)
     if not d:
-        dead = "N/A"
+        dead = None
     else:
         dead = d.group(1)
     return (ospf_int,ip,area,net,cost,neighbour,adjacency,hello,dead)
@@ -134,13 +135,13 @@ for device in devices:
             if not data:
                 continue
             print("\nInt:\t{}\nIP:\t{}\nArea:\t{}\nType:\t{}\nCost:\t{}".format(data[0],data[1],data[2],data[3],data[4]))
-            if "N/A" not in data[5]:
+            if data[5]:
                 print("Neigh:\t{}".format(data[5]))
-            if "N/A" not in data[6]:
+            if data[6]:
                 print("Adj:\t{}".format(data[6]))
-            if "N/A" not in data[7]:
+            if data[7]:
                 print("Hello:\t{}".format(data[7]))
-            if "N/A" not in data[8]:
+            if data[8]:
                 print("Dead:\t{}".format(data[8]))
     else:
         print("\n!*Unable to resolve or log into",device,"*!")
