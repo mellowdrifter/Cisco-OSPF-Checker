@@ -37,6 +37,23 @@ def interface(i):
         dead = d.group(1)
     return (ospf_int,ip,area,net,cost,hello,dead)
 
+def login(i):
+    try:
+        tn = telnetlib.Telnet(device,23,5)
+        tn.read_until(b"Username: ")
+        tn.write(user.encode('ascii') + b"\n")
+        tn.read_until(b"Password: ")
+        tn.write(password.encode('ascii') + b"\n")
+        tn.write(b"\n")
+        tn.write(b"terminal length 0\n")
+        tn.write(b"show ver | include IOS\n")
+        tn.write(b"show ip ospf interface\n")
+        tn.write(b"exit\n")
+        output=(tn.read_all().decode('ascii'))
+        return output
+    except:
+        return None
+
 
 #Get list of devices to check
 devices=[]
@@ -90,21 +107,11 @@ password = getpass.getpass(prompt="Enter your password: ")
 
 #Log into host, run commands, echo output, write output to file
 for device in devices:
-    try:
-        tn = telnetlib.Telnet(device,23,5)
-        tn.read_until(b"Username: ")
-        tn.write(user.encode('ascii') + b"\n")
-        tn.read_until(b"Password: ")
-        tn.write(password.encode('ascii') + b"\n")
-        tn.write(b"\n")
-        print("\n\nChecking ",device)
-        f = open('report.txt', 'a')
-        f.write("\n\n\nChecking "+device)
-        tn.write(b"terminal length 0\n")
-        tn.write(b"show ver | include IOS\n")
-        tn.write(b"show ip ospf interface\n")
-        tn.write(b"exit\n")
-        output=(tn.read_all().decode('ascii'))
+    print("\n\nChecking ",device)
+    f = open('report.txt', 'a')
+    f.write("\n\n\nChecking "+device)
+    output=login(device)
+    if output:
         if raw:
             raw_out+=output
         ospf = re.split(r'[\n](?=GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI|Vlan|Virtual-Access)',output)
@@ -114,7 +121,7 @@ for device in devices:
                 continue
             print("\nInt:\t{}\nIP:\t{}\nArea:\t{}\nType:\t{}\nCost:\t{}".format(data[0],data[1],data[2],data[3],data[4]))
             print("Hello:\t{}\nDead:\t{}".format(data[5],data[6]))
-    except:
+    else:
         print("\n!*Unable to resolve or log into",device,"*!")
 
 f.close()            
