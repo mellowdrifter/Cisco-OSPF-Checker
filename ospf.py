@@ -25,6 +25,16 @@ def interface(i):
     net = n.group(1)
     c = re.search(r'Cost: ([0-9]{1,5})',i)
     cost = c.group(1)
+    ne = re.search(r'(?:Neighbor Count is )([0-9]{1,3})',i)
+    if not ne:
+        neighbour = "N/A"
+    else:
+        neighbour = ne.group(1)
+    ad = re.search(r'(?:Adjacent neighbor count is )([0-9]{1,3})',i)
+    if not ad:
+        adjacency = "N/A"
+    else:
+        adjacency = ad.group(1)
     h = re.search(r'Hello ([0-9]{1,3})',i)
     if not h:
         hello = "N/A"
@@ -35,7 +45,7 @@ def interface(i):
         dead = "N/A"
     else:
         dead = d.group(1)
-    return (ospf_int,ip,area,net,cost,hello,dead)
+    return (ospf_int,ip,area,net,cost,neighbour,adjacency,hello,dead)
 
 def login(i):
     try:
@@ -120,7 +130,7 @@ for device in devices:
             if not data:
                 continue
             print("\nInt:\t{}\nIP:\t{}\nArea:\t{}\nType:\t{}\nCost:\t{}".format(data[0],data[1],data[2],data[3],data[4]))
-            print("Hello:\t{}\nDead:\t{}".format(data[5],data[6]))
+            print("Neigh:\t{}\nAdj:\t{}\nHello:\t{}\nDead:\t{}".format(data[5],data[6],data[7],data[8]))
     else:
         print("\n!*Unable to resolve or log into",device,"*!")
 
