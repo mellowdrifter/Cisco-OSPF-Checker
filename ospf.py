@@ -9,7 +9,7 @@ import re
 import sys
 
 
-def interface(i):
+def ospf_information(i):
     ospf_int = re.search(r'(GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI|Vlan|Virtual-Access)[0-9]{1,4}/?[0-9]{0,4}.?[0-9]{0,4}/?[0-9]{0,3}/?[0-9]{0,3}/?[0-9]{0,3}:?[0-9]{0,3}',i)
     if not ospf_int:
         return None
@@ -27,7 +27,11 @@ def interface(i):
     cost = c.group(1)
     ne = re.search(r'(?:Neighbor Count is )([0-9]{1,3})',i)
     if not ne:
-        neighbour = "N/A"
+        p = re.search(r'Passive',i)
+        if not p:
+            neighbour = "N/A"
+        else:
+            neighbour = p.group()
     else:
         neighbour = ne.group(1)
     ad = re.search(r'(?:Adjacent neighbor count is )([0-9]{1,3})',i)
@@ -126,11 +130,18 @@ for device in devices:
             raw_out+=output
         ospf = re.split(r'[\n](?=GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI|Vlan|Virtual-Access)',output)
         for o in ospf:
-            data = interface(o)
+            data = ospf_information(o)
             if not data:
                 continue
             print("\nInt:\t{}\nIP:\t{}\nArea:\t{}\nType:\t{}\nCost:\t{}".format(data[0],data[1],data[2],data[3],data[4]))
-            print("Neigh:\t{}\nAdj:\t{}\nHello:\t{}\nDead:\t{}".format(data[5],data[6],data[7],data[8]))
+            if "N/A" not in data[5]:
+                print("Neigh:\t{}".format(data[5]))
+            if "N/A" not in data[6]:
+                print("Adj:\t{}".format(data[6]))
+            if "N/A" not in data[7]:
+                print("Hello:\t{}".format(data[7]))
+            if "N/A" not in data[8]:
+                print("Dead:\t{}".format(data[8]))
     else:
         print("\n!*Unable to resolve or log into",device,"*!")
 
