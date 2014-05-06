@@ -25,53 +25,73 @@ def login(i): #Log into device and get output
         except:
             return None
 
-def ospf_information(i): #Get OSPF information for each interface
-    ospf_int = re.search(r'(GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI|Vlan|Virtual-Access)[0-9]{1,4}/?[0-9]{0,4}.?[0-9]{0,4}/?[0-9]{0,3}/?[0-9]{0,3}/?[0-9]{0,3}:?[0-9]{0,3}',i)
-    if not ospf_int:
-        return None
-    ospf_int = ospf_int.group()
-    ip = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})',i)
-    ip = ip.group()
-    if not ip:
-        ip = re.search(r'Interface is unnumbered. Using address of [a-zA-Z]{1,10}[0-9]{1,5}/?[0-9]{0,5}.?[0-9]{0,5}',i)
+def ospf_information(i):
+    int_list = {}
+    ospf = re.split(r'[\n](?=GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI|Vlan|Virtual-Access)',i)
+    for o in ospf:
+        properties = []
+        interface =  re.search(r'(GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI|Vlan|Virtual-Access)[0-9]{1,4}/?[0-9]{0,4}.?[0-9]{0,4}/?[0-9]{0,3}/?[0-9]{0,3}/?[0-9]{0,3}:?[0-9]{0,3}',o)
+        if not interface:
+            continue
+        interface = interface.group()
+        ip = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})',o)
         ip = ip.group()
-    a = re.search(r'Area ([\s]{0,3}[0-9]{1,5})',i)
-    area = a.group(1)
-    n = re.search(r'Network Type ([\s]{0,3}[a-zA-Z_]{0,20})',i)
-    net = n.group(1)
-    c = re.search(r'Cost: ([0-9]{1,5})',i)
-    cost = c.group(1)
-    p = re.search(r'Passive',i)
-    if p:
-        neighbour = "Passive Interface"
-        adjacency = None
-    else:
-        ne = re.search(r'(?:Neighbor Count is )([0-9]{1,3})',i)
-        if not ne:
-            neighbour = None
-        else:
-            neighbour = ne.group(1)
-        ad = re.search(r'(?:Adjacent neighbor count is )([0-9]{1,3})',i)
-        if not ad:
+        properties.append(ip)
+        if not ip:
+            ip = re.search(r'Interface is unnumbered. Using address of [a-zA-Z]{1,10}[0-9]{1,5}/?[0-9]{0,5}.?[0-9]{0,5}',o)
+            ip = ip.group()
+            properties.append(ip)
+        a = re.search(r'Area ([\s]{0,3}[0-9]{1,5})',o)
+        area = a.group(1)
+        properties.append(area)
+        n = re.search(r'Network Type ([\s]{0,3}[a-zA-Z_]{0,20})',o)
+        net = n.group(1)
+        properties.append(net)
+        c = re.search(r'Cost: ([0-9]{1,5})',o)
+        cost = c.group(1)
+        properties.append(cost)
+        p = re.search(r'Passive',o)
+        if p:
+            neighbour = "Passive Interface"
             adjacency = None
+            properties.append(neighbour)
+            properties.append(adjacency)
         else:
-            adjacency = ad.group(1)
-    h = re.search(r'Hello ([0-9]{1,3})',i)
-    if not h:
-        hello = None
-    else:
-        hello = h.group(1)
-    d = re.search(r'Dead ([0-9]{1,3})',i)
-    if not d:
-        dead = None
-    else:
-        dead = d.group(1)
-    return (ospf_int,ip,area,net,cost,neighbour,adjacency,hello,dead)
+            ne = re.search(r'(?:Neighbor Count is )([0-9]{1,3})',o)
+            if not ne:
+                neighbour = None
+                properties.append(neighbour)
+            else:
+                neighbour = ne.group(1)
+                properties.append(neighbour)
+            ad = re.search(r'(?:Adjacent neighbor count is )([0-9]{1,3})',o)
+            if not ad:
+                adjacency = None
+                properties.append(adjacency)
+            else:
+                adjacency = ad.group(1)
+                properties.append(adjacency)
+        h = re.search(r'Hello ([0-9]{1,3})',o)
+        if not h:
+            hello = None
+            properties.append(hello)
+        else:
+            hello = h.group(1)
+            properties.append(hello)
+        d = re.search(r'Dead ([0-9]{1,3})',o)
+        if not d:
+            dead = None
+            properties.append(dead)
+        else:
+            dead = d.group(1)
+            properties.append(dead)
+        int_list[interface]=properties
+    return int_list
+        
 
 
 #Get list of devices to check
 devices=[]
-
 if len(sys.argv) > 1:       #If any routers passed via cli, we check those instead
     for i in sys.argv[1:]:
         devices.append(i)
@@ -128,22 +148,36 @@ for device in devices:
     if output:
         if raw:
             raw_out+=output
-        ospf = re.split(r'[\n](?=GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI|Vlan|Virtual-Access)',output)
-        for o in ospf:
-            data = ospf_information(o)
-            if not data:
+    ospf_int = ospf_information(output)
+    print("\n"+device,"has",len(ospf_int),"ospf enabled interfaces")
+    for k in ospf_int:
+        print("\n\nInt:\t",k)
+        item = 0
+        for v in ospf_int[k]:
+            if item == 0:
+                print("IP:\t",v)
+            elif item == 1:
+                print("Area:\t",v)
+            elif item == 2:
+                print("Type:\t",v)
+            elif item == 3:
+                print("Cost:\t",v)
+            elif item == 4:
+                if v:
+                    print("Neigh:\t",v)
+            elif item == 5:
+                if v:
+                    print("Adj:\t",v)
+            elif item == 6:
+                if v:
+                    print("Hello:\t",v)
+            elif item == 7:
+                if v:
+                    print("Dead:\t",v)
+            else:
                 continue
-            print("\nInt:\t{}\nIP:\t{}\nArea:\t{}\nType:\t{}\nCost:\t{}".format(data[0],data[1],data[2],data[3],data[4]))
-            if data[5]:
-                print("Neigh:\t{}".format(data[5]))
-            if data[6]:
-                print("Adj:\t{}".format(data[6]))
-            if data[7]:
-                print("Hello:\t{}".format(data[7]))
-            if data[8]:
-                print("Dead:\t{}".format(data[8]))
-    else:
-        print("\n!*Unable to resolve or log into",device,"*!")
+            item+=1
+
 
 f.close()            
 
