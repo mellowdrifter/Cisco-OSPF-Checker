@@ -7,6 +7,7 @@ import telnetlib
 import getpass
 import re
 import sys
+import collections
 
 def login(i): #Log into device and get output
         try:
@@ -29,62 +30,62 @@ def ospf_information(i):
     int_list = {}
     ospf = re.split(r'[\n](?=GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI|Vlan|Virtual-Access)',i)
     for o in ospf:
-        properties = []
+        properties = {}
         interface =  re.search(r'(GigabitEthernet|FastEthernet|Serial|Tunnel|Loopback|Dialer|BVI|Vlan|Virtual-Access)[0-9]{1,4}/?[0-9]{0,4}.?[0-9]{0,4}/?[0-9]{0,3}/?[0-9]{0,3}/?[0-9]{0,3}:?[0-9]{0,3}',o)
         if not interface:
             continue
         interface = interface.group()
         ip = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})',o)
         ip = ip.group()
-        properties.append(ip)
+        properties['IP'] = ip
         if not ip:
             ip = re.search(r'Interface is unnumbered. Using address of [a-zA-Z]{1,10}[0-9]{1,5}/?[0-9]{0,5}.?[0-9]{0,5}',o)
             ip = ip.group()
-            properties.append(ip)
+            properties['IP'] = ip
         a = re.search(r'Area ([\s]{0,3}[0-9]{1,5})',o)
         area = a.group(1)
-        properties.append(area)
+        properties['Area'] = area
         n = re.search(r'Network Type ([\s]{0,3}[a-zA-Z_]{0,20})',o)
         net = n.group(1)
-        properties.append(net)
+        properties['Net'] = net
         c = re.search(r'Cost: ([0-9]{1,5})',o)
         cost = c.group(1)
-        properties.append(cost)
+        properties['Cost'] = cost
         p = re.search(r'Passive',o)
         if p:
             neighbour = "Passive Interface"
             adjacency = None
-            properties.append(neighbour)
-            properties.append(adjacency)
+            properties['Neigh'] = neighbour
+            properties['Adj'] = adjacency
         else:
             ne = re.search(r'(?:Neighbor Count is )([0-9]{1,3})',o)
             if not ne:
                 neighbour = None
-                properties.append(neighbour)
+                properties['Neigh'] = neighbour
             else:
                 neighbour = ne.group(1)
-                properties.append(neighbour)
+                properties['Neigh'] = neighbour
             ad = re.search(r'(?:Adjacent neighbor count is )([0-9]{1,3})',o)
             if not ad:
                 adjacency = None
-                properties.append(adjacency)
+                properties['Adj'] = adjacency
             else:
                 adjacency = ad.group(1)
-                properties.append(adjacency)
+                properties['Adj'] = adjacency
         h = re.search(r'Hello ([0-9]{1,3})',o)
         if not h:
             hello = None
-            properties.append(hello)
+            properties['Hello'] = None
         else:
             hello = h.group(1)
-            properties.append(hello)
+            properties['Hello'] = hello
         d = re.search(r'Dead ([0-9]{1,3})',o)
         if not d:
             dead = None
-            properties.append(dead)
+            properties['Dead'] = None
         else:
             dead = d.group(1)
-            properties.append(dead)
+            properties['Dead'] = dead
         int_list[interface]=properties
     return int_list
         
@@ -149,34 +150,21 @@ for device in devices:
         if raw:
             raw_out+=output
     ospf_int = ospf_information(output)
-    print("\n"+device,"has",len(ospf_int),"ospf enabled interfaces")
-    for k in ospf_int:
-        print("\n\nInt:\t",k)
-        item = 0
-        for v in ospf_int[k]:
-            if item == 0:
-                print("IP:\t",v)
-            elif item == 1:
-                print("Area:\t",v)
-            elif item == 2:
-                print("Type:\t",v)
-            elif item == 3:
-                print("Cost:\t",v)
-            elif item == 4:
-                if v:
-                    print("Neigh:\t",v)
-            elif item == 5:
-                if v:
-                    print("Adj:\t",v)
-            elif item == 6:
-                if v:
-                    print("Hello:\t",v)
-            elif item == 7:
-                if v:
-                    print("Dead:\t",v)
-            else:
-                continue
-            item+=1
+    print("\n"+device,"has",len(ospf_int),"ospf enabled interfaces!")
+    for o in ospf_int:
+        print("\n\nInt:\t"+o)
+        print("IP:\t"+ospf_int[o]['IP'])
+        print("Area:\t"+ospf_int[o]['Area'])
+        print("Type:\t"+ospf_int[o]['Net'])
+        print("Cost:\t"+ospf_int[o]['Cost'])
+        if ospf_int[o]['Neigh']:
+            print("Neigh:\t"+ospf_int[o]['Neigh'])
+        if ospf_int[o]['Adj']:
+            print("Adj:\t"+ospf_int[o]['Adj'])
+        if ospf_int[o]['Hello']:
+            print("Hello:\t"+ospf_int[o]['Hello'])
+        if ospf_int[o]['Dead']:
+            print("Dead:\t"+ospf_int[o]['Dead'])
 
 
 f.close()            
