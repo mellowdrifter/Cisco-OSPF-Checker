@@ -46,6 +46,8 @@ def ospf_information(i):
         properties['Net'] = n.group(1)
         c = re.search(r'Cost: ([0-9]{1,5})',o)
         properties['Cost'] = c.group(1)
+        s = re.search(r'line protocol is[\s]([a-zA-Z]{1,4})',o)
+        properties['Status'] = s.group(1)
         p = re.search(r'Passive',o)
         if p:
             properties['Neigh'] = "Passive Interface"
@@ -137,10 +139,10 @@ for device in devices:
     ospf_int = ospf_information(output)
     print("\n"+device,"has",len(ospf_int),"ospf enabled interfaces!")
     for o in ospf_int:
-        ip,area,net,cost = ospf_int[o]['IP'],ospf_int[o]['Area'],ospf_int[o]['Net'],ospf_int[o]['Cost']
+        ip,area,net,cost,status = ospf_int[o]['IP'],ospf_int[o]['Area'],ospf_int[o]['Net'],ospf_int[o]['Cost'],ospf_int[o]['Status']
         neigh,adj,hello,dead = ospf_int[o]['Neigh'],ospf_int[o]['Adj'],ospf_int[o]['Hello'],ospf_int[o]['Dead']
         print("\n\nInt:\t"+o)
-        print("IP:\t{}\nArea:\t{}\nType:\t{}\nCost:\t{}".format(ip,area,net,cost))
+        print("IP:\t{}\nArea:\t{}\nType:\t{}\nCost:\t{}\nStat:\t{}".format(ip,area,net,cost,status))
         if neigh:
             print("Neigh:\t"+neigh)
         if adj:
