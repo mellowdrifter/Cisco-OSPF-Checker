@@ -36,56 +36,41 @@ def ospf_information(i):
             continue
         interface = interface.group()
         ip = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})',o)
-        ip = ip.group()
-        properties['IP'] = ip
+        properties['IP'] = ip.group()
         if not ip:
             ip = re.search(r'Interface is unnumbered. Using address of [a-zA-Z]{1,10}[0-9]{1,5}/?[0-9]{0,5}.?[0-9]{0,5}',o)
-            ip = ip.group()
-            properties['IP'] = ip
+            properties['IP'] = ip.group()
         a = re.search(r'Area ([\s]{0,3}[0-9]{1,5})',o)
-        area = a.group(1)
-        properties['Area'] = area
+        properties['Area'] = a.group(1)
         n = re.search(r'Network Type ([\s]{0,3}[a-zA-Z_]{0,20})',o)
-        net = n.group(1)
-        properties['Net'] = net
+        properties['Net'] = n.group(1)
         c = re.search(r'Cost: ([0-9]{1,5})',o)
-        cost = c.group(1)
-        properties['Cost'] = cost
+        properties['Cost'] = c.group(1)
         p = re.search(r'Passive',o)
         if p:
-            neighbour = "Passive Interface"
-            adjacency = None
-            properties['Neigh'] = neighbour
-            properties['Adj'] = adjacency
+            properties['Neigh'] = "Passive Interface"
+            properties['Adj'] = None
         else:
             ne = re.search(r'(?:Neighbor Count is )([0-9]{1,3})',o)
             if not ne:
-                neighbour = None
-                properties['Neigh'] = neighbour
+                properties['Neigh'] = None
             else:
-                neighbour = ne.group(1)
-                properties['Neigh'] = neighbour
+                properties['Neigh'] = ne.group(1)
             ad = re.search(r'(?:Adjacent neighbor count is )([0-9]{1,3})',o)
             if not ad:
-                adjacency = None
-                properties['Adj'] = adjacency
+                properties['Adj'] = None
             else:
-                adjacency = ad.group(1)
-                properties['Adj'] = adjacency
+                properties['Adj'] = ad.group(1)
         h = re.search(r'Hello ([0-9]{1,3})',o)
         if not h:
-            hello = None
             properties['Hello'] = None
         else:
-            hello = h.group(1)
-            properties['Hello'] = hello
+            properties['Hello'] = h.group(1)
         d = re.search(r'Dead ([0-9]{1,3})',o)
         if not d:
-            dead = None
             properties['Dead'] = None
         else:
-            dead = d.group(1)
-            properties['Dead'] = dead
+            properties['Dead'] = d.group(1)
         int_list[interface]=properties
     return int_list
         
@@ -152,19 +137,18 @@ for device in devices:
     ospf_int = ospf_information(output)
     print("\n"+device,"has",len(ospf_int),"ospf enabled interfaces!")
     for o in ospf_int:
+        ip,area,net,cost = ospf_int[o]['IP'],ospf_int[o]['Area'],ospf_int[o]['Net'],ospf_int[o]['Cost']
+        neigh,adj,hello,dead = ospf_int[o]['Neigh'],ospf_int[o]['Adj'],ospf_int[o]['Hello'],ospf_int[o]['Dead']
         print("\n\nInt:\t"+o)
-        print("IP:\t"+ospf_int[o]['IP'])
-        print("Area:\t"+ospf_int[o]['Area'])
-        print("Type:\t"+ospf_int[o]['Net'])
-        print("Cost:\t"+ospf_int[o]['Cost'])
-        if ospf_int[o]['Neigh']:
-            print("Neigh:\t"+ospf_int[o]['Neigh'])
-        if ospf_int[o]['Adj']:
-            print("Adj:\t"+ospf_int[o]['Adj'])
-        if ospf_int[o]['Hello']:
-            print("Hello:\t"+ospf_int[o]['Hello'])
-        if ospf_int[o]['Dead']:
-            print("Dead:\t"+ospf_int[o]['Dead'])
+        print("IP:\t{}\nArea:\t{}\nType:\t{}\nCost:\t{}".format(ip,area,net,cost))
+        if neigh:
+            print("Neigh:\t"+neigh)
+        if adj:
+            print("Adj:\t"+adj)
+        if hello:
+            print("Hello:\t"+hello)
+        if dead:
+            print("Dead:\t"+dead)
 
 
 f.close()            
