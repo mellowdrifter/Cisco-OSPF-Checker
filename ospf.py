@@ -25,6 +25,16 @@ def login(i): #Log into device and get output
         except:
             return None
 
+def yes_no(q):  #Ask yes or no question
+    answer = input(q).lower()
+    while answer not in ["y","n"]:
+        print("\nInvalid response!\n")
+        answer = input(q).lower()
+    if "y" in answer:
+        return 1
+    else:
+        return 0
+        
 
 #Get list of devices to check
 devices=[]
@@ -46,21 +56,17 @@ else:
         devices.append(line.strip())
 
 #Check if report.txt exists. If so, ask if we want to overwrite it. Also ask if you want to write raw output at the end
-r = ""
-while r not in ["y","n"]:
-    r = input("\n\n\nWould you like to write the raw cli output to raw.txt? [y/n]: ")
-    if r.lower() == "y":
-        raw = 1
-        raw_out=""
-    else:
-        raw = 0
+report = yes_no("Would you like to write the raw cli output to raw.txt? [y/n]: ")
+if report:
+    raw = 1
+    raw_out = ""
+else:
+    raw = 0
 
 try:
     with open('report.txt') as file:
-        choice = input("\nreport.txt already exists. Do you want to overwrite it? [y/n]: ")
-        while choice not in ["y","n"]:
-            choice = input("Invalid choice! Do you want to overwrite report.txt? [y/n]: ")
-        if choice == "n":
+        choice = yes_no("\nreport.txt already exists. Do you want to overwrite it? [y/n]: ")
+        if not choice:
             print("\nExiting now")
             exit()
         else:
