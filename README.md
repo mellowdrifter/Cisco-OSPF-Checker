@@ -1,31 +1,16 @@
+#OSPF Checker
 This is a simple app to list the ospf interfaces and properties on Cisco routers
+Uses ospfios.py - A module that will take router output and return a dictionary
+of interfaces and OSPF values
 
--Currently outputs to a file called reports.txt in the same location. App will ask you what to do is reports.txt already exists
+If run with no arguments, the app will attempt to find devices.txt in the local
+directory. This should be a list of devices to log into. If run with arguments,
+the app will log into those devices passed as arguments.
 
-v0.05
-=====
--You can now pass a router name as an argument
--If there is not argument, then device.txt is looked at
+Example:
+./ospf.py router1.com router2.com
+This will log into router1.com and router2.com, and ignore devices.txt
 
-v0.04
-=====
--Now captures OSPF items in list
--Prints and saves output to report.txt
+If no arguments are passed and devices.txt does not exist, the app will exit
 
-
-v0.03
-=====
--App can now read list of devices from file
--Exits app if devices.txt cannot be found
--write output to a text file
-
-v0.02
-=====
--Devices are now listed inside a tuple. Previously only one router at a time could be run
-
-
-TO-DO
-=====
--Make far better output
--Include SSH support
 
