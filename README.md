@@ -1,7 +1,7 @@
 ##OSPF Checker
-This is a simple app to list the ospf interfaces and properties on Cisco routers
-Uses ospfios.py - A module that will take router output and return a dictionary
-of interfaces and OSPF values
+This is a simple app to list the ospf interfaces and properties on Cisco IOS
+routers. Uses ios.py - A module that will take router output and return a 
+dictionary of OSPF overview and interface data.
 
 ###Running
 If run with no arguments, the app will attempt to find _devices.txt_ in the local
