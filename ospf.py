@@ -9,7 +9,7 @@ import sys
 import ios
 import paramiko
 
-def login(i,c): #Log into device and get output
+def login_telnet(i,c): #Log into device and get output
     try:
         tn = telnetlib.Telnet(device,23,5)
         tn.read_until(b"Username: ")
@@ -89,7 +89,7 @@ for device in devices:
     f = open('report.txt', 'a')
     f.write("\n\n\nChecking "+device)
     for x in range(0,3):
-        output=login(device,x)
+        output=login_telnet(device,x)
         if output:
             if raw:
                 raw_out+=output
