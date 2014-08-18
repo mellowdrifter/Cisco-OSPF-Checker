@@ -7,6 +7,7 @@ import telnetlib
 import getpass
 import sys
 import ios
+import paramiko
 
 def login(i,c): #Log into device and get output
     try:
