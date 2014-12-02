@@ -72,7 +72,7 @@ if __name__ == "__main__":
     f = open(sys.argv[1])
     info = f.read()
     f.close()
-    ospf = ospf_information(info)
+    ospf = ospf_interface(info)
     if len(ospf) == 1:
         print("This device contains 1 OSPF enabled interface")
     print("This device contains "+str(len(ospf))+" OSPF enabled interfaces")
